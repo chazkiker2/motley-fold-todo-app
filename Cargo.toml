@@ -1,0 +1,6 @@
+[package]
+name = "todo-backend-rocket-rust"
+version = "0.1.0"
+authors = ["John Hume <duelin.markers@gmail.com>"]
+
+[dependencies]
