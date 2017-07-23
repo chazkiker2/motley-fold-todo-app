@@ -7,3 +7,11 @@ authors = ["John Hume <duelin.markers@gmail.com>"]
 rocket = "0.3.0"
 rocket_codegen = "0.3.0"
 rocket_cors = "0.1.4"
+serde = "1.0"
+serde_json = "1.0"
+serde_derive = "1.0"
+
+[dependencies.rocket_contrib]
+version = "*"
+default-features = false
+features = ["json"]
