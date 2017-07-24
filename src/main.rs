@@ -9,8 +9,8 @@ extern crate rocket_contrib;
 use rocket_contrib::Json;
 
 #[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
+fn index() -> Json<Vec<Todo>> {
+    Json(vec![])
 }
 
 #[derive(Serialize, Deserialize)]
@@ -25,7 +25,7 @@ fn create_todo(todo: Json<Todo>) -> Json<Todo> {
 
 #[delete("/")]
 fn delete_all() -> Json<Vec<Todo>> {
-    Json(vec![])
+    index()
 }
 
 fn main() {
