@@ -11,6 +11,7 @@ use rocket::http::Status;
 use rocket::response::Failure;
 use rocket_contrib::Json;
 use std::sync::Mutex;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[get("/")]
 fn index(state: State<Mutex<Vec<Todo>>>) -> Result<Json<Vec<Todo>>, Failure> {
@@ -23,15 +24,18 @@ fn index(state: State<Mutex<Vec<Todo>>>) -> Result<Json<Vec<Todo>>, Failure> {
 struct Todo {
     title: String,
     completed: Option<bool>,
+    url: Option<String>,
 }
 
 #[post("/", data = "<todo_json>")]
 fn create_todo(todo_json: Json<Todo>, state: State<Mutex<Vec<Todo>>>) -> Result<Json<Todo>, Failure> {
+    let url = new_todo_url()?;
     state.lock()
         .map_err(|_| Failure(Status::InternalServerError))
         .map(|mut todos| {
             let mut todo = todo_json.into_inner();
             todo.completed = Some(false);
+            todo.url = Some(url);
             todos.push(todo.clone());
             Json(todo)
         })
@@ -53,4 +57,12 @@ fn main() {
         .attach(rocket_cors::Cors::default())
         .manage(Mutex::new(Vec::<Todo>::new()))
         .launch();
+}
+
+fn new_todo_url() -> Result<String, Failure> {
+    // TODO use real UUIDs? Don't hardcode base URL.
+    let since_epoch = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|_| Failure(Status::InternalServerError))?;
+    Ok(format!("http://localhost:8000/{}.{}", since_epoch.as_secs(), since_epoch.subsec_nanos()))
 }
