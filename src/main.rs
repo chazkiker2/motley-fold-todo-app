@@ -51,18 +51,37 @@ fn delete_all(state: State<Mutex<Vec<Todo>>>) -> Result<Json<Vec<Todo>>, Failure
         })
 }
 
+#[get("/<todo_id>")]
+fn get_todo(todo_id: String, state: State<Mutex<Vec<Todo>>>) -> Result<Json<Todo>, Failure> {
+    state.lock()
+        .map_err(|_| Failure(Status::InternalServerError))
+        .and_then(|todos| {
+            let url = Some(todo_url(&todo_id));
+            todos.iter()
+                .find(|todo| todo.url == url)
+                .map(|todo| Json(todo.clone()))
+                .ok_or(Failure(Status::InternalServerError))
+        })
+}
+
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, create_todo, delete_all])
+        .mount("/", routes![index, create_todo, delete_all, get_todo])
         .attach(rocket_cors::Cors::default())
         .manage(Mutex::new(Vec::<Todo>::new()))
         .launch();
 }
+
+const BASE_URL: &'static str = "http://localhost:8000";
 
 fn new_todo_url() -> Result<String, Failure> {
     // TODO use real UUIDs? Don't hardcode base URL.
     let since_epoch = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_err(|_| Failure(Status::InternalServerError))?;
-    Ok(format!("http://localhost:8000/{}.{}", since_epoch.as_secs(), since_epoch.subsec_nanos()))
+    Ok(format!("{}/{}.{}", BASE_URL, since_epoch.as_secs(), since_epoch.subsec_nanos()))
+}
+
+fn todo_url(todo_id: &str) -> String {
+    format!("{}/{}", BASE_URL, todo_id)
 }
