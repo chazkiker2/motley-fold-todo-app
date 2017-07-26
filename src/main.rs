@@ -64,9 +64,32 @@ fn get_todo(todo_id: String, state: State<Mutex<Vec<Todo>>>) -> Result<Json<Todo
         })
 }
 
+#[derive(Deserialize, Clone)]
+struct TodoUpdate {
+    title: Option<String>,
+}
+
+#[patch("/<todo_id>", data = "<todo_update>")]
+fn update_todo(todo_id: String, todo_update: Json<TodoUpdate>, state: State<Mutex<Vec<Todo>>>) -> Result<Json<Todo>, Failure> {
+    state.lock()
+        .map_err(|_| Failure(Status::InternalServerError))
+        .and_then(|mut todos| {
+            let url = Some(todo_url(&todo_id));
+            todos.iter_mut()
+                .find(|todo| todo.url == url)
+                .map(|mut todo| {
+                    for title in &todo_update.title {
+                        todo.title = title.clone();
+                    }
+                    Json(todo.clone())
+                })
+                .ok_or(Failure(Status::InternalServerError))
+        })
+}
+
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, create_todo, delete_all, get_todo])
+        .mount("/", routes![index, create_todo, delete_all, get_todo, update_todo])
         .attach(rocket_cors::Cors::default())
         .manage(Mutex::new(Vec::<Todo>::new()))
         .launch();
