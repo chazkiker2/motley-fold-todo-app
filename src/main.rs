@@ -67,6 +67,7 @@ fn get_todo(todo_id: String, state: State<Mutex<Vec<Todo>>>) -> Result<Json<Todo
 #[derive(Deserialize, Clone)]
 struct TodoUpdate {
     title: Option<String>,
+    completed: Option<bool>,
 }
 
 #[patch("/<todo_id>", data = "<todo_update>")]
@@ -80,6 +81,9 @@ fn update_todo(todo_id: String, todo_update: Json<TodoUpdate>, state: State<Mute
                 .map(|mut todo| {
                     for title in &todo_update.title {
                         todo.title = title.clone();
+                    }
+                    for completed in &todo_update.completed {
+                        todo.completed = Some(*completed);
                     }
                     Json(todo.clone())
                 })
