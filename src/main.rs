@@ -25,6 +25,7 @@ struct Todo {
     title: String,
     completed: Option<bool>,
     url: Option<String>,
+    order: Option<u32>,
 }
 
 #[post("/", data = "<todo_json>")]
