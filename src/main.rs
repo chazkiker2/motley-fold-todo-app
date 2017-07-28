@@ -23,7 +23,8 @@ fn index(state: State<Mutex<Vec<Todo>>>) -> Result<Json<Vec<Todo>>, Failure> {
 #[derive(Serialize, Deserialize, Clone)]
 struct Todo {
     title: String,
-    completed: Option<bool>,
+    #[serde(default)]
+    completed: bool,
     url: Option<String>,
     order: Option<u32>,
 }
@@ -35,7 +36,6 @@ fn create_todo(todo_json: Json<Todo>, state: State<Mutex<Vec<Todo>>>) -> Result<
         .map_err(|_| Failure(Status::InternalServerError))
         .map(|mut todos| {
             let mut todo = todo_json.into_inner();
-            todo.completed = Some(false);
             todo.url = Some(url);
             todos.push(todo.clone());
             Json(todo)
@@ -96,7 +96,7 @@ fn update_todo(todo_id: String, todo_update: Json<TodoUpdate>, state: State<Mute
                         todo.title = title.clone();
                     }
                     for completed in &todo_update.completed {
-                        todo.completed = Some(*completed);
+                        todo.completed = *completed;
                     }
                     for order in &todo_update.order {
                         todo.order = Some(*order);
