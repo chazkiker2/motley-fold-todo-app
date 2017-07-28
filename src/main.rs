@@ -6,18 +6,19 @@ extern crate rocket_cors;
 extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
 
+use std::sync::Mutex;
+use std::time::{SystemTime, UNIX_EPOCH};
 use rocket::State;
 use rocket::http::Status;
 use rocket::response::Failure;
 use rocket_contrib::Json;
-use std::sync::Mutex;
-use std::time::{SystemTime, UNIX_EPOCH};
 
-#[get("/")]
-fn index(state: State<Mutex<Vec<Todo>>>) -> Result<Json<Vec<Todo>>, Failure> {
-    state.lock()
-        .map_err(|_| Failure(Status::InternalServerError))
-        .map(|todos| Json(todos.clone()))
+fn main() {
+    rocket::ignite()
+        .mount("/", routes![index, create_todo, delete_all, get_todo, delete_todo, update_todo])
+        .attach(rocket_cors::Cors::default())
+        .manage(Mutex::new(Vec::<Todo>::new()))
+        .launch();
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -27,6 +28,13 @@ struct Todo {
     completed: bool,
     url: Option<String>,
     order: Option<u32>,
+}
+
+#[get("/")]
+fn index(state: State<Mutex<Vec<Todo>>>) -> Result<Json<Vec<Todo>>, Failure> {
+    state.lock()
+        .map_err(|_| Failure(Status::InternalServerError))
+        .map(|todos| Json(todos.clone()))
 }
 
 #[post("/", data = "<todo_json>")]
@@ -42,16 +50,6 @@ fn create_todo(todo_json: Json<Todo>, state: State<Mutex<Vec<Todo>>>) -> Result<
         })
 }
 
-#[delete("/")]
-fn delete_all(state: State<Mutex<Vec<Todo>>>) -> Result<Json<Vec<Todo>>, Failure> {
-    state.lock()
-        .map_err(|_| Failure(Status::InternalServerError))
-        .map(|mut todos| {
-            todos.clear();
-            Json(todos.clone())
-        })
-}
-
 #[get("/<todo_id>")]
 fn get_todo(todo_id: String, state: State<Mutex<Vec<Todo>>>) -> Result<Json<Todo>, Failure> {
     state.lock()
@@ -62,17 +60,6 @@ fn get_todo(todo_id: String, state: State<Mutex<Vec<Todo>>>) -> Result<Json<Todo
                 .find(|todo| todo.url == url)
                 .map(|todo| Json(todo.clone()))
                 .ok_or(Failure(Status::InternalServerError))
-        })
-}
-
-#[delete("/<todo_id>")]
-fn delete_todo(todo_id: String, state: State<Mutex<Vec<Todo>>>) -> Result<(), Failure> {
-    state.lock()
-        .map_err(|_| Failure(Status::InternalServerError))
-        .map(|mut todos| {
-            let url = Some(todo_url(&todo_id));
-            todos.retain(|todo| todo.url != url);
-            ()
         })
 }
 
@@ -107,12 +94,25 @@ fn update_todo(todo_id: String, todo_update: Json<TodoUpdate>, state: State<Mute
         })
 }
 
-fn main() {
-    rocket::ignite()
-        .mount("/", routes![index, create_todo, delete_all, get_todo, delete_todo, update_todo])
-        .attach(rocket_cors::Cors::default())
-        .manage(Mutex::new(Vec::<Todo>::new()))
-        .launch();
+#[delete("/<todo_id>")]
+fn delete_todo(todo_id: String, state: State<Mutex<Vec<Todo>>>) -> Result<(), Failure> {
+    state.lock()
+        .map_err(|_| Failure(Status::InternalServerError))
+        .map(|mut todos| {
+            let url = Some(todo_url(&todo_id));
+            todos.retain(|todo| todo.url != url);
+            ()
+        })
+}
+
+#[delete("/")]
+fn delete_all(state: State<Mutex<Vec<Todo>>>) -> Result<Json<Vec<Todo>>, Failure> {
+    state.lock()
+        .map_err(|_| Failure(Status::InternalServerError))
+        .map(|mut todos| {
+            todos.clear();
+            Json(todos.clone())
+        })
 }
 
 const BASE_URL: &'static str = "http://localhost:8000";
