@@ -80,6 +80,7 @@ fn delete_todo(todo_id: String, state: State<Mutex<Vec<Todo>>>) -> Result<(), Fa
 struct TodoUpdate {
     title: Option<String>,
     completed: Option<bool>,
+    order: Option<u32>,
 }
 
 #[patch("/<todo_id>", data = "<todo_update>")]
@@ -96,6 +97,9 @@ fn update_todo(todo_id: String, todo_update: Json<TodoUpdate>, state: State<Mute
                     }
                     for completed in &todo_update.completed {
                         todo.completed = Some(*completed);
+                    }
+                    for order in &todo_update.order {
+                        todo.order = Some(*order);
                     }
                     Json(todo.clone())
                 })
