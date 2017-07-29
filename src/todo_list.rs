@@ -5,12 +5,17 @@ pub struct TodoList {
     todos: Mutex<Vec<Todo>>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Clone)]
 pub struct Todo {
     pub title: String,
-    #[serde(default)]
     pub completed: bool,
-    pub url: Option<String>,
+    pub url: String,
+    pub order: Option<u32>,
+}
+
+#[derive(Deserialize)]
+pub struct TodoCreate {
+    pub title: String,
     pub order: Option<u32>,
 }
 
@@ -32,12 +37,17 @@ impl TodoList {
             .map_err(|_| Error{})
     }
 
-    pub fn create_todo(&self, title: &str, order: Option<u32>) -> Result<Todo, Error> {
-        let url = Some(todo_url(&new_id()?));
+    pub fn create_todo(&self, request: &TodoCreate) -> Result<Todo, Error> {
+        let url = todo_url(&new_id()?);
         self.todos.lock()
             .map_err(|_| Error{})
             .map(|mut todos| {
-                let todo = Todo{url: url, title: title.to_string(), completed: false, order: order};
+                let todo = Todo{
+                    url: url,
+                    title: request.title.clone(),
+                    order: request.order.clone(),
+                    completed: false,
+                };
                 todos.push(todo.clone());
                 todo
             })
@@ -47,7 +57,7 @@ impl TodoList {
         self.todos.lock()
             .map_err(|_| Error{})
             .and_then(|todos| {
-                let url = Some(todo_url(todo_id));
+                let url = todo_url(todo_id);
                 todos.iter()
                     .find(|todo| todo.url == url)
                     .map(|todo| todo.clone())
@@ -59,7 +69,7 @@ impl TodoList {
         self.todos.lock()
             .map_err(|_| Error{})
             .and_then(|mut todos| {
-                let url = Some(todo_url(&todo_id));
+                let url = todo_url(&todo_id);
                 todos.iter_mut()
                     .find(|todo| todo.url == url)
                     .map(|mut todo| {
@@ -81,7 +91,7 @@ impl TodoList {
     pub fn delete_todo(&self, todo_id: &str) -> Result<(), Error> {
         self.todos.lock()
             .map(|mut todos| {
-                let url = Some(todo_url(&todo_id));
+                let url = todo_url(&todo_id);
                 todos.retain(|todo| todo.url != url);
                 ()
             })

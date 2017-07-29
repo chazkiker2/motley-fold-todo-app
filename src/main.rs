@@ -11,7 +11,7 @@ mod todo_list;
 use rocket::{Request, State};
 use rocket::request::{FromRequest, Outcome};
 use rocket_contrib::Json;
-use todo_list::{Error, Todo, TodoList, TodoUpdate};
+use todo_list::{Error, Todo, TodoCreate, TodoList, TodoUpdate};
 
 fn main() {
     rocket::ignite()
@@ -27,9 +27,8 @@ fn index(todo_list: &TodoList) -> Result<Json<Vec<Todo>>, Error> {
 }
 
 #[post("/", data = "<todo_json>")]
-fn create_todo(todo_json: Json<Todo>, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
-    let todo = todo_json.into_inner();
-    todo_list.create_todo(&todo.title, todo.order).map(|todo| Json(todo))
+fn create_todo(todo_json: Json<TodoCreate>, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
+    todo_list.create_todo(&todo_json.into_inner()).map(|todo| Json(todo))
 }
 
 #[get("/<todo_id>")]
