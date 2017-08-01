@@ -5,11 +5,11 @@ pub struct TodoList {
     todos: Mutex<Vec<Todo>>,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Clone)]
 pub struct Todo {
+    pub id: String,
     pub title: String,
     pub completed: bool,
-    pub url: String,
     pub order: Option<u32>,
 }
 
@@ -38,12 +38,12 @@ impl TodoList {
     }
 
     pub fn create_todo(&self, request: &TodoCreate) -> Result<Todo, Error> {
-        let url = todo_url(&new_id()?);
+        let id = new_id()?;
         self.todos.lock()
             .map_err(|_| Error{})
             .map(|mut todos| {
                 let todo = Todo{
-                    url: url,
+                    id: id,
                     title: request.title.clone(),
                     order: request.order.clone(),
                     completed: false,
@@ -57,9 +57,8 @@ impl TodoList {
         self.todos.lock()
             .map_err(|_| Error{})
             .and_then(|todos| {
-                let url = todo_url(todo_id);
                 todos.iter()
-                    .find(|todo| todo.url == url)
+                    .find(|todo| todo.id == todo_id)
                     .map(|todo| todo.clone())
                     .ok_or(Error{})
             })
@@ -69,9 +68,8 @@ impl TodoList {
         self.todos.lock()
             .map_err(|_| Error{})
             .and_then(|mut todos| {
-                let url = todo_url(&todo_id);
                 todos.iter_mut()
-                    .find(|todo| todo.url == url)
+                    .find(|todo| todo.id == todo_id)
                     .map(|mut todo| {
                         for title in &todo_update.title {
                             todo.title = title.clone();
@@ -91,8 +89,7 @@ impl TodoList {
     pub fn delete_todo(&self, todo_id: &str) -> Result<(), Error> {
         self.todos.lock()
             .map(|mut todos| {
-                let url = todo_url(&todo_id);
-                todos.retain(|todo| todo.url != url);
+                todos.retain(|todo| todo.id != todo_id);
                 ()
             })
             .map_err(|_| Error{})
@@ -120,12 +117,6 @@ impl ::std::fmt::Display for Error {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         write!(f, "TodoList Error!")
     }
-}
-
-const BASE_URL: &'static str = "http://localhost:8000";
-
-pub fn todo_url(todo_id: &str) -> String {
-    format!("{}/{}", BASE_URL, todo_id)
 }
 
 fn new_id() -> Result<String, Error> {
