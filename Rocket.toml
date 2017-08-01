@@ -1,0 +1,8 @@
+[global]
+limits = { json = 32768 }
+
+[development]
+
+[staging]
+
+[production]
