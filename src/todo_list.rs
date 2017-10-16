@@ -70,7 +70,7 @@ impl TodoList {
             .and_then(|mut todos| {
                 todos.iter_mut()
                     .find(|todo| todo.id == todo_id)
-                    .map(|mut todo| {
+                    .map(|todo| {
                         for title in &todo_update.title {
                             todo.title = title.clone();
                         }
