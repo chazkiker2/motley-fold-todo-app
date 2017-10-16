@@ -4,14 +4,14 @@ version = "0.1.0"
 authors = ["John Hume <duelin.markers@gmail.com>"]
 
 [dependencies]
-rocket = "0.3.0"
-rocket_codegen = "0.3.0"
-rocket_cors = "0.1.4"
+rocket = "0.3.3"
+rocket_codegen = "0.3.3"
+rocket_cors = "0.2.0"
 serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
 
 [dependencies.rocket_contrib]
-version = "*"
+version = "0.3.3"
 default-features = false
 features = ["json"]
