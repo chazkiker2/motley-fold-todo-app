@@ -1,107 +1,88 @@
-use std::sync::Mutex;
-use std::time::{SystemTime, UNIX_EPOCH};
+use db::schema::todos;
+use db::pool::Pool;
+use diesel::prelude::*;
+use diesel;
+use r2d2;
 
 pub struct TodoList {
-    todos: Mutex<Vec<Todo>>,
+    pool: Pool,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Queryable)]
 pub struct Todo {
-    pub id: String,
+    pub id: i32,
     pub title: String,
     pub completed: bool,
-    pub order: Option<u32>,
+    #[column_name(item_order)]
+    pub order: Option<i32>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Insertable)]
+#[table_name="todos"]
 pub struct TodoCreate {
     pub title: String,
-    pub order: Option<u32>,
+    #[column_name(item_order)]
+    pub order: Option<i32>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, AsChangeset)]
+#[table_name="todos"]
 pub struct TodoUpdate {
     pub title: Option<String>,
     pub completed: Option<bool>,
-    pub order: Option<u32>,
+    #[column_name(item_order)]
+    pub order: Option<i32>,
 }
 
 impl TodoList {
-    pub fn new() -> TodoList {
-        TodoList{todos: Mutex::new(Vec::<Todo>::new())}
+
+    pub fn new(pool: Pool) -> TodoList {
+        TodoList{pool: pool}
     }
 
     pub fn all(&self) -> Result<Vec<Todo>, Error> {
-        self.todos.lock()
-            .map(|todos| todos.clone())
-            .map_err(|_| Error{})
+        use db::schema::todos::dsl::*;
+        todos.limit(100)
+            .load(&*self.pool.get()?)
+            .map_err(From::from)
     }
 
     pub fn create_todo(&self, request: &TodoCreate) -> Result<Todo, Error> {
-        let id = new_id()?;
-        self.todos.lock()
-            .map_err(|_| Error{})
-            .map(|mut todos| {
-                let todo = Todo{
-                    id: id,
-                    title: request.title.clone(),
-                    order: request.order.clone(),
-                    completed: false,
-                };
-                todos.push(todo.clone());
-                todo
-            })
+        diesel::insert(request)
+            .into(todos::table)
+            .get_result(&*self.pool.get()?)
+            .map_err(From::from)
     }
 
-    pub fn get_todo(&self, todo_id: &str) -> Result<Todo, Error> {
-        self.todos.lock()
-            .map_err(|_| Error{})
-            .and_then(|todos| {
-                todos.iter()
-                    .find(|todo| todo.id == todo_id)
-                    .map(|todo| todo.clone())
-                    .ok_or(Error{})
-            })
+    pub fn get_todo(&self, todo_id: i32) -> Result<Todo, Error> {
+        use db::schema::todos::dsl::*;
+        todos.find(todo_id)
+            .first(&*self.pool.get()?)
+            .map_err(From::from)
     }
 
-    pub fn update_todo(&self, todo_id: &str, todo_update: TodoUpdate) -> Result<Todo, Error> {
-        self.todos.lock()
-            .map_err(|_| Error{})
-            .and_then(|mut todos| {
-                todos.iter_mut()
-                    .find(|todo| todo.id == todo_id)
-                    .map(|todo| {
-                        for title in &todo_update.title {
-                            todo.title = title.clone();
-                        }
-                        for completed in &todo_update.completed {
-                            todo.completed = *completed;
-                        }
-                        for order in &todo_update.order {
-                            todo.order = Some(*order);
-                        }
-                        todo.clone()
-                    })
-                    .ok_or(Error{})
-            })
+    pub fn update_todo(&self, todo_id: i32, todo_update: TodoUpdate) -> Result<Todo, Error> {
+        use db::schema::todos::dsl::*;
+        diesel::update(todos.find(todo_id))
+            .set(&todo_update)
+            .get_result(&*self.pool.get()?)
+            .map_err(From::from)
     }
 
-    pub fn delete_todo(&self, todo_id: &str) -> Result<(), Error> {
-        self.todos.lock()
-            .map(|mut todos| {
-                todos.retain(|todo| todo.id != todo_id);
-                ()
-            })
-            .map_err(|_| Error{})
+    pub fn delete_todo(&self, todo_id: i32) -> Result<(), Error> {
+        use db::schema::todos::dsl::*;
+        diesel::delete(todos.find(todo_id))
+            .execute(&*self.pool.get()?)
+            .map(|_| ())
+            .map_err(From::from)
     }
 
     pub fn clear(&self) -> Result<(), Error> {
-        self.todos.lock()
-            .map(|mut todos| {
-                todos.clear();
-                ()
-            })
-            .map_err(|_| Error{})
+        use db::schema::todos::dsl::*;
+        diesel::delete(todos)
+            .execute(&*self.pool.get()?)
+            .map(|_| ())
+            .map_err(From::from)
     }
 }
 
@@ -118,11 +99,13 @@ impl ::std::fmt::Display for Error {
         write!(f, "TodoList Error!")
     }
 }
-
-fn new_id() -> Result<String, Error> {
-    // TODO use real UUIDs?
-    let since_epoch = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|_| Error{})?;
-    Ok(format!("{}.{}", since_epoch.as_secs(), since_epoch.subsec_nanos()))
+impl ::std::convert::From<r2d2::GetTimeout> for Error {
+    fn from(_: r2d2::GetTimeout) -> Self {
+        Error{}
+    }
+}
+impl ::std::convert::From<diesel::result::Error> for Error {
+    fn from(_: diesel::result::Error) -> Self {
+        Error{}
+    }
 }

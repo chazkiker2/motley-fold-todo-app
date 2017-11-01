@@ -1,13 +1,20 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+#![recursion_limit="128"]
 
 extern crate rocket;
 extern crate rocket_cors;
 extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
+#[macro_use] extern crate diesel;
+#[macro_use] extern crate diesel_codegen;
+extern crate r2d2;
+extern crate r2d2_diesel;
+extern crate dotenv;
 
 mod todo_list;
 mod api;
+mod db;
 
 use rocket_contrib::Json;
 use api::{Todo, TodoList};
@@ -19,7 +26,7 @@ fn main() {
     rocket
         .mount("/", routes![index, create_todo, delete_all, get_todo, delete_todo, update_todo])
         .attach(rocket_cors::Cors::default())
-        .manage(TodoList::new(base_url, todo_list::TodoList::new()))
+        .manage(TodoList::new(base_url, db::pool::init()))
         .launch();
 }
 
@@ -34,18 +41,18 @@ fn create_todo(todo_json: Json<TodoCreate>, todo_list: &TodoList) -> Result<Json
 }
 
 #[get("/<todo_id>")]
-fn get_todo(todo_id: String, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
-    todo_list.get_todo(&todo_id).map(|todo| Json(todo))
+fn get_todo(todo_id: i32, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
+    todo_list.get_todo(todo_id).map(|todo| Json(todo))
 }
 
 #[patch("/<todo_id>", data = "<todo_update>")]
-fn update_todo(todo_id: String, todo_update: Json<TodoUpdate>, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
-    todo_list.update_todo(&todo_id, todo_update.into_inner()).map(|todo| Json(todo))
+fn update_todo(todo_id: i32, todo_update: Json<TodoUpdate>, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
+    todo_list.update_todo(todo_id, todo_update.into_inner()).map(|todo| Json(todo))
 }
 
 #[delete("/<todo_id>")]
-fn delete_todo(todo_id: String, todo_list: &TodoList) -> Result<(), Error> {
-    todo_list.delete_todo(&todo_id)
+fn delete_todo(todo_id: i32, todo_list: &TodoList) -> Result<(), Error> {
+    todo_list.delete_todo(todo_id)
 }
 
 #[delete("/")]
