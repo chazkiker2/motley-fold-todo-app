@@ -27,7 +27,7 @@ fn main() {
     let base_url = rocket.config().get_str("base_url").expect("required config 'base_url'").to_owned();
     rocket
         .mount("/", routes![index, create_todo, delete_all, get_todo, delete_todo, update_todo])
-        // .attach(rocket_cors::Cors::default())
+        .attach(rocket_cors::Cors::from_options(&rocket_cors::CorsOptions::default()).expect("Failed to create rocket_cors::Cors"))
         .manage(TodoList::new(base_url, db::pool::init()))
         .launch();
 }
