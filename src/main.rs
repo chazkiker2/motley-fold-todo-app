@@ -26,7 +26,7 @@ fn main() {
     let rocket = rocket::ignite();
     let base_url = rocket.config().get_str("base_url").expect("required config 'base_url'").to_owned();
     rocket
-        .mount("/", routes![index, create_todo, delete_all, get_todo, delete_todo, update_todo])
+        .mount("/", routes![index, create_todo, delete_all, get_todo, delete_todo, update_todo, search_todo ])
         .attach(rocket_cors::Cors::from_options(&rocket_cors::CorsOptions::default()).expect("Failed to create rocket_cors::Cors"))
         .manage(TodoList::new(base_url, db::pool::init()))
         .launch();
@@ -50,6 +50,50 @@ fn get_todo(todo_id: i32, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
 #[patch("/<todo_id>", data = "<todo_update>")]
 fn update_todo(todo_id: i32, todo_update: Json<TodoUpdate>, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
     todo_list.update_todo(todo_id, todo_update.into_inner()).map(|todo| Json(todo))
+}
+
+
+/// Given a search term, find all todos with titles that contain the search term (case insensitive)
+///
+/// # Example
+///
+/// Say we had two todos, one was titled "todo_001", the other titled "todo_002".
+///
+/// If a user hit `GET "/"`, they'd receive the following list of todos:
+///
+/// ```json
+/// [
+///   {
+///     "url": "http://127.0.0.1:8000/1",
+///     "title": "todo_001",
+///     "completed": false,
+///     "order": 1
+///   },
+///   {
+///     "url": "http://127.0.0.1:8000/2",
+///     "title": "todo_002",
+///     "completed": false,
+///     "order": 2
+///   }
+/// ]
+/// ```
+///
+/// Now say that the user wanted to search for a todo containing the number "2".
+/// They could call `GET "/search/2" to obtain the following list:
+///
+/// ```json
+/// [
+///   {
+///     "url": "http://127.0.0.1:8000/2",
+///     "title": "todo_002",
+///     "completed": false,
+///     "order": 2
+///   }
+/// ]
+/// ```
+#[get("/search/<search>")]
+fn search_todo(search: String, todo_list: &TodoList) -> Result<Json<Vec<Todo>>, Error> {
+    todo_list.search_todo(&search).map(|todos| Json(todos))
 }
 
 #[delete("/<todo_id>")]

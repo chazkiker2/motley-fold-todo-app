@@ -33,6 +33,22 @@ impl TodoList {
         self.todo_list.get_todo(todo_id).map(|todo| self.adapt(&todo))
     }
 
+    /// Given a search term, find all todos with titles that contain the search term (case insensitive)
+    ///
+    /// # Example
+    ///
+    /// Say we had two todos, one was titled "todo_001", the other titled "todo_002".
+    ///
+    /// ```ignore
+    /// // this call would return both todos
+    /// let contains_todo = todo_list.search_todo("todo").unwrap();
+    /// // this call would simply contain the Todo titled "todo_001"
+    /// let contains_001 = todo_list.search_todo("001").unwrap();
+    /// ```
+    pub fn search_todo(&self, search_term: &str) -> Result<Vec<Todo>, Error> {
+        self.todo_list.search_todo(search_term).map(|todos| todos.iter().map(|todo| self.adapt(&todo)).collect())
+    }
+
     pub fn update_todo(&self, todo_id: i32, todo_update: TodoUpdate) -> Result<Todo, Error> {
         self.todo_list.update_todo(todo_id, todo_update).map(|todo| self.adapt(&todo))
     }

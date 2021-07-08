@@ -54,6 +54,27 @@ impl TodoList {
             .map_err(From::from)
     }
 
+    /// Given a search term, find all todos with titles that contain the search term (case insensitive)
+    ///
+    /// # Example
+    ///
+    /// Say we had two todos, one was titled "todo_001", the other titled "todo_002".
+    ///
+    /// ```ignore
+    /// // this call would return both todos
+    /// let contains_todo = todo_list.search_todo("todo").unwrap();
+    /// // this call would simply contain the Todo titled "todo_001"
+    /// let contains_001 = todo_list.search_todo("001").unwrap();
+    /// ```
+    pub fn search_todo(&self, search: &str) -> Result<Vec<Todo>, Error> {
+        use db::schema::todos::dsl::*;
+        todos
+            .filter(title.ilike(format!("%{}%",search)))
+            .get_results(&*self.pool.get()?)
+            // .load(&*self.pool.get()?)
+            .map_err(From::from)
+    }
+
     pub fn get_todo(&self, todo_id: i32) -> Result<Todo, Error> {
         use db::schema::todos::dsl::*;
         todos.find(todo_id)
