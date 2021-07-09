@@ -71,7 +71,6 @@ impl TodoList {
         todos
             .filter(title.ilike(format!("%{}%",search)))
             .get_results(&*self.pool.get()?)
-            // .load(&*self.pool.get()?)
             .map_err(From::from)
     }
 

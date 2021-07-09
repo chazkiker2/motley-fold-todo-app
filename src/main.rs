@@ -1,6 +1,3 @@
-// #![feature(plugin)]
-// #![plugin(rocket_codegen)]
-// #![recursion_limit="128"]
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use]
