@@ -64,7 +64,7 @@ The original functionality is completely maintained, even after updating depende
 ### New Feature & Explanation
 
 - The feature that I chose to implement was a search feature which allows users to hit `/search/<search_query>` to search todos by title (case insensitive)
-- The endpoint has the route `/search/<search_query>` where `<search_query>>` would be replaced with the term to search.
+- The endpoint has the route `/search/<search_query>` where `<search_query>` would be replaced with the term to search.
 - The query is a case-insensitive comparison (i.e., a todo item with the title `"TODO"` would be included in the results from a search at the route `/search/todo`)
 - The query will match if placed anywhere within the title. (i.e., `/search/od` would match titles `"TODO_001"`, `"ODD_TITLE"`, and `"food"` alike)
 - The user will receive a list of all todos with titles that match the given query. If no titles match, then the user would receive an empty list.
