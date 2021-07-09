@@ -1,7 +1,7 @@
-use rocket::{Request, State};
-use rocket::request::{FromRequest, Outcome};
-use todo_list::{self, Error, TodoCreate, TodoUpdate};
 use db::pool::Pool;
+use rocket::request::{FromRequest, Outcome};
+use rocket::{Request, State};
+use todo_list::{self, Error, TodoCreate, TodoUpdate};
 
 #[derive(Serialize)]
 pub struct Todo {
@@ -18,19 +18,22 @@ pub struct TodoList {
 
 impl TodoList {
     pub fn new(base_url: String, pool: Pool) -> TodoList {
-        TodoList{base_url: base_url, todo_list: todo_list::TodoList::new(pool)}
+        TodoList {
+            base_url: base_url,
+            todo_list: todo_list::TodoList::new(pool),
+        }
     }
 
     pub fn all(&self) -> Result<Vec<Todo>, Error> {
-        self.todo_list.all().map(|todos| todos.iter().map(|todo| self.adapt(&todo)).collect())
+        self.adapt_list(self.todo_list.all())
     }
 
     pub fn create_todo(&self, request: &TodoCreate) -> Result<Todo, Error> {
-        self.todo_list.create_todo(request).map(|todo| self.adapt(&todo))
+        self.adapt_single(self.todo_list.create_todo(request))
     }
 
     pub fn get_todo(&self, todo_id: i32) -> Result<Todo, Error> {
-        self.todo_list.get_todo(todo_id).map(|todo| self.adapt(&todo))
+        self.adapt_single(self.todo_list.get_todo(todo_id))
     }
 
     /// Given a search term, find all todos with titles that contain the search term (case insensitive)
@@ -46,11 +49,11 @@ impl TodoList {
     /// let contains_001 = todo_list.search_todo("001").unwrap();
     /// ```
     pub fn search_todo(&self, search_term: &str) -> Result<Vec<Todo>, Error> {
-        self.todo_list.search_todo(search_term).map(|todos| todos.iter().map(|todo| self.adapt(&todo)).collect())
+        self.adapt_list(self.todo_list.search_todo(search_term))
     }
 
     pub fn update_todo(&self, todo_id: i32, todo_update: TodoUpdate) -> Result<Todo, Error> {
-        self.todo_list.update_todo(todo_id, todo_update).map(|todo| self.adapt(&todo))
+        self.adapt_single(self.todo_list.update_todo(todo_id, todo_update))
     }
 
     pub fn delete_todo(&self, todo_id: i32) -> Result<(), Error> {
@@ -61,6 +64,7 @@ impl TodoList {
         self.todo_list.clear()
     }
 
+    /// Convert a `todo_list::Todo` to a `Todo`
     fn adapt(&self, todo: &todo_list::Todo) -> Todo {
         Todo {
             title: todo.title.clone(),
@@ -69,12 +73,24 @@ impl TodoList {
             order: todo.order.clone(),
         }
     }
+
+    /// Convert a `Result<Vec<todo_list::Todo>, Error>` to a `Result<Vec<api::Todo>, Error>`
+    fn adapt_list(&self, result: Result<Vec<todo_list::Todo>, Error>) -> Result<Vec<Todo>, Error> {
+        result.map(|todos| todos.iter().map(|todo| self.adapt(&todo)).collect())
+    }
+
+    /// Convert a `Result<todo_list::Todo, Error>` to a `Result<api::Todo, Error>`
+    fn adapt_single(&self, result: Result<todo_list::Todo, Error>) -> Result<Todo, Error> {
+        result.map(|todo| self.adapt(&todo))
+    }
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for &'r TodoList {
     type Error = ();
     fn from_request(request: &'a Request<'r>) -> Outcome<&'r TodoList, ()> {
-        request.guard::<State<TodoList>>().map(|state| state.inner())
+        request
+            .guard::<State<TodoList>>()
+            .map(|state| state.inner())
     }
 }
 
