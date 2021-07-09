@@ -2,8 +2,8 @@
 
 #[macro_use]
 extern crate rocket;
-extern crate rocket_cors;
 extern crate rocket_contrib;
+extern crate rocket_cors;
 
 #[macro_use]
 extern crate serde_derive;
@@ -13,24 +13,42 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_codegen;
 
+extern crate dotenv;
 extern crate r2d2;
 extern crate r2d2_diesel;
-extern crate dotenv;
 
-mod todo_list;
 mod api;
 mod db;
+mod todo_list;
 
-use rocket_contrib::json::Json;
 use api::{Todo, TodoList};
+use rocket_contrib::json::Json;
 use todo_list::{Error, TodoCreate, TodoUpdate};
 
 fn main() {
     let rocket = rocket::ignite();
-    let base_url = rocket.config().get_str("base_url").expect("required config 'base_url'").to_owned();
+    let base_url = rocket
+        .config()
+        .get_str("base_url")
+        .expect("required config 'base_url'")
+        .to_owned();
     rocket
-        .mount("/", routes![index, create_todo, delete_all, get_todo, delete_todo, update_todo, search_todo ])
-        .attach(rocket_cors::Cors::from_options(&rocket_cors::CorsOptions::default()).expect("Failed to create rocket_cors::Cors"))
+        .mount(
+            "/",
+            routes![
+                index,
+                create_todo,
+                delete_all,
+                get_todo,
+                delete_todo,
+                update_todo,
+                search_todo
+            ],
+        )
+        .attach(
+            rocket_cors::Cors::from_options(&rocket_cors::CorsOptions::default())
+                .expect("Failed to create rocket_cors::Cors"),
+        )
         .manage(TodoList::new(base_url, db::pool::init()))
         .launch();
 }
@@ -42,7 +60,9 @@ fn index(todo_list: &TodoList) -> Result<Json<Vec<Todo>>, Error> {
 
 #[post("/", data = "<todo_json>")]
 fn create_todo(todo_json: Json<TodoCreate>, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
-    todo_list.create_todo(&todo_json.into_inner()).map(|todo| Json(todo))
+    todo_list
+        .create_todo(&todo_json.into_inner())
+        .map(|todo| Json(todo))
 }
 
 #[get("/<todo_id>")]
@@ -51,10 +71,15 @@ fn get_todo(todo_id: i32, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
 }
 
 #[patch("/<todo_id>", data = "<todo_update>")]
-fn update_todo(todo_id: i32, todo_update: Json<TodoUpdate>, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
-    todo_list.update_todo(todo_id, todo_update.into_inner()).map(|todo| Json(todo))
+fn update_todo(
+    todo_id: i32,
+    todo_update: Json<TodoUpdate>,
+    todo_list: &TodoList,
+) -> Result<Json<Todo>, Error> {
+    todo_list
+        .update_todo(todo_id, todo_update.into_inner())
+        .map(|todo| Json(todo))
 }
-
 
 /// Given a search term, find all todos with titles that contain the search term (case insensitive)
 ///

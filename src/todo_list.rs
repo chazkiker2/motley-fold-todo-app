@@ -1,7 +1,7 @@
-use db::schema::todos;
 use db::pool::Pool;
-use diesel::prelude::*;
+use db::schema::todos;
 use diesel;
+use diesel::prelude::*;
 use r2d2;
 
 pub struct TodoList {
@@ -18,7 +18,7 @@ pub struct Todo {
 }
 
 #[derive(Deserialize, Insertable)]
-#[table_name="todos"]
+#[table_name = "todos"]
 pub struct TodoCreate {
     pub title: String,
     #[column_name(item_order)]
@@ -26,7 +26,7 @@ pub struct TodoCreate {
 }
 
 #[derive(Deserialize, Clone, AsChangeset)]
-#[table_name="todos"]
+#[table_name = "todos"]
 pub struct TodoUpdate {
     pub title: Option<String>,
     pub completed: Option<bool>,
@@ -35,14 +35,14 @@ pub struct TodoUpdate {
 }
 
 impl TodoList {
-
     pub fn new(pool: Pool) -> TodoList {
-        TodoList{pool: pool}
+        TodoList { pool }
     }
 
     pub fn all(&self) -> Result<Vec<Todo>, Error> {
         use db::schema::todos::dsl::*;
-        todos.limit(100)
+        todos
+            .limit(100)
             .load(&*self.pool.get()?)
             .map_err(From::from)
     }
@@ -69,14 +69,15 @@ impl TodoList {
     pub fn search_todo(&self, search: &str) -> Result<Vec<Todo>, Error> {
         use db::schema::todos::dsl::*;
         todos
-            .filter(title.ilike(format!("%{}%",search)))
+            .filter(title.ilike(format!("%{}%", search)))
             .get_results(&*self.pool.get()?)
             .map_err(From::from)
     }
 
     pub fn get_todo(&self, todo_id: i32) -> Result<Todo, Error> {
         use db::schema::todos::dsl::*;
-        todos.find(todo_id)
+        todos
+            .find(todo_id)
             .first(&*self.pool.get()?)
             .map_err(From::from)
     }
@@ -121,11 +122,11 @@ impl ::std::fmt::Display for Error {
 }
 impl ::std::convert::From<r2d2::GetTimeout> for Error {
     fn from(_: r2d2::GetTimeout) -> Self {
-        Error{}
+        Error {}
     }
 }
 impl ::std::convert::From<diesel::result::Error> for Error {
     fn from(_: diesel::result::Error) -> Self {
-        Error{}
+        Error {}
     }
 }
