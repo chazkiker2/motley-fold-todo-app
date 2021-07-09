@@ -29,6 +29,7 @@
   3. Now, since this application uses Nightly, you can either...
      - default to nightly with `rustup default nightly`
      - or simply override within this directory by travelling to the `motley-fold-todo-app` directory in your terminal and running `rustup override set nightly` as described in the [rust-lang docs](https://rust-lang.github.io/rustup/overrides.html#directory-overrides)
+     - Note: if you'd like to use `rls` (rust language server) for type hints and such in VS Code with the [Rust language extension](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust), you can look [here](https://rust-lang.github.io/rustup-components-history/) for the latest nightly build with support for `rls`, `rust-analysis`, and `rust-src`. Then, you can run for instance `rustup override set nightly-2021-07-06`
 - Once all of the above is set up and you've got a nightly installation of Rust ready to roll, `cargo run` to start up the local server!
 
 ## Evaluation Criteria & Notes
