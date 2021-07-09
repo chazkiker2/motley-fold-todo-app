@@ -44,12 +44,12 @@ The original functionality is completely maintained, even after updating depende
 ### Link to Project Template
 
 - Original project template: <https://gitlab.com/duelinmarkers/todo-backend-rocket-rust/-/tree/master/>
--
+- This template was taken from <http://www.todobackend.com/index.html>. You can find it by clicking on "Rocket" or "Rust" and finding the "Rust / Rocket" entry
 
 ### New Feature & Explanation
 
-- The feature which I chose to implement was a search feature which allows users to hit `/search/<search_query>` to search todos by title (case insensitive)
-- The endpoint has the route `/search/<search_query>` where `search_query` would be the term to search.
+- The feature that I chose to implement was a search feature which allows users to hit `/search/<search_query>` to search todos by title (case insensitive)
+- The endpoint has the route `/search/<search_query>` where `<search_query>>` would be replaced with the term to search.
 - The query is a case-insensitive comparison (i.e., a todo item with the title `"TODO"` would be included in the results from a search at the route `/search/todo`)
 - The query will match if placed anywhere within the title. (i.e., `/search/od` would match titles `"TODO_001"`, `"ODD_TITLE"`, and `"food"` alike)
 - The user will receive a list of all todos with titles that match the given query. If no titles match, then the user would receive an empty list.
@@ -58,19 +58,20 @@ The original functionality is completely maintained, even after updating depende
 
 - Though I have been using Rust the past month or so, I've never used Rocket before other than dabbling in a couple of tutorials. (Note: Rocket is the framework with which this app is built). Further, I certainly haven't used several of the dependencies used specifically in this application, including: `rocket`, `diesel`, `r2d2`.
 
-      I chose to use Rocket for this challenge b/c I've been wanting to use it and figured it may demonstrate to TMF that ya boy is very comfortable using brand new frameworks :wink:.
+  I chose to use Rocket for this challenge b/c I've been wanting to use it and figured it may demonstrate to TMF that ya boy is very comfortable using brand new frameworks :wink:.
 
 - Beyond the fact that Rocket is new to me, I think it's worth noting that the existing codebase used `rocket v0.3.3` which was THREE YEARS old (as was the rust compiler)...
 
-      Now, Rust is a relatively newer language and thus the language itself (and all of its frameworks) change fast and drastically. Three years in Java Spring, for instance, is rather different than three years in Rust Rocket.
+  Now, Rust is a relatively newer language and thus the language itself (and all of its frameworks) change fast and drastically. Three years in Java Spring, for instance, is rather different than three years in Rust Rocket.
 
-      When I initially cloned this project, `cargo build` literally failed to compile the package. What this means is that the codebase from three years ago that once compiled and worked no longer did. `rustc` (the Rust compiler) literally rejected the code in the package.
+  When I initially cloned this project, `cargo build` literally failed to compile the package. What this means is that the codebase from three years ago that once compiled and worked no longer did. `rustc` (the Rust compiler) literally rejected the code in the package.
 
-      So The first thing I did was update all `rocket` dependencies in the package to the newest stable version. This is not a magic fix, so I also updated several other pieces in the code to get this package in a buildable and runnable state.
+  So The first thing I did was update all `rocket` dependencies in the package to the newest stable version. This is not a magic fix, so I also updated several other pieces in the code to get this package in a buildable and runnable state.
 
-      This was definitely new to me, but I learned a thing or two about `rustc`, and I got to see firsthand some of the changes that have been made to `rocket` throughout the years.
+  This was definitely new to me, but I learned a thing or two about `rustc`, and I got to see firsthand some of the changes that have been made to `rocket` throughout the years.
 
-      Thankfully, one of Rust's most highly-touted values is its backwards compatibility. This value is upheld throughout the community, from the core of rust-lang throughout all of its favorite crates and frameworks. So this dependency version overhaul, while not as straightforward to perfect as one might think, did allow most of the code to stay the same once a couple things changed!
+  Thankfully, one of Rust's most highly-touted values is its backwards compatibility. This value is upheld throughout the community, from the core of rust-lang throughout all of its favorite crates and frameworks. So this dependency version overhaul, while not as straightforward to perfect as one might think, did allow most of the code to stay the same once a couple things changed!
+
 - This is a rather small and irrelevant detail, but the initial code was in GitLab (rather than GitHub) so I got to learn how to port over a repository from GitLab to GitHub. Super duper simple, but a nice little piece of knowledge to have nonetheless. [Here's how to do it.](https://stackoverflow.com/questions/22265837/transfer-git-repositories-from-gitlab-to-github-can-we-how-to-and-pitfalls-i)
 
 ### Areas of Improvement
