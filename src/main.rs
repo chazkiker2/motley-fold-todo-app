@@ -56,7 +56,13 @@ fn update_todo(todo_id: i32, todo_update: Json<TodoUpdate>, todo_list: &TodoList
 ///
 /// Say we had two todos, one was titled "todo_001", the other titled "todo_002".
 ///
-/// If a user hit `GET "/"`, they'd receive the following list of todos:
+/// A user could navigate to the `GET "/"` endpoint like so to get all todo items:
+///
+/// ```bash
+/// curl -X GET http://127.0.0.1:8000/
+/// ```
+///
+/// And they'd receive the following list of todos:
 ///
 /// ```json
 /// [
@@ -76,7 +82,15 @@ fn update_todo(todo_id: i32, todo_update: Json<TodoUpdate>, todo_list: &TodoList
 /// ```
 ///
 /// Now say that the user wanted to search for a todo containing the number "2".
-/// They could call `GET "/search/2" to obtain the following list:
+/// They could call `GET "/search/2"` to obtain the following list:
+///
+/// Curl Call:
+///
+/// ```bash
+/// curl -X GET http://127.0.0.1:8000/search/2
+/// ```
+///
+/// Response body:
 ///
 /// ```json
 /// [
