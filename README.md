@@ -2,6 +2,7 @@
 
 ## Table of Contents <!-- omit in toc -->
 
+- [How to Install & Run](#how-to-install--run)
 - [Evaluation Criteria & Notes](#evaluation-criteria--notes)
   - [Primary Evaluation Criteria](#primary-evaluation-criteria)
   - [Hosted on GitHub](#hosted-on-github)
@@ -16,21 +17,32 @@
   - [New Feature Ideas](#new-feature-ideas)
 - [Original README](#original-readme)
 
+
+## How to Install & Run
+
+- clone this repository (or fork and clone, if you'd rather)
+- this app is built in Rust and Rocket and makes use of features in the nightly channel, which means you'll need a recent release of Rust nightly in order to run this Rocket application.
+  1. to install the latest version of Rust, I recommend using `rustup`. Install `rustup` by following the instructions on [its website](https://rustup.rs/).
+  2. Once `rustup` is installed, ensure the latest toolchain is installed by running the command `rustup default stable`.
+  3. Now, since this application uses Nightly, you can either...
+     - default to nightly with `rustup default nightly`
+     - or simply override within this directory by travelling to the `motley-fold-todo-app` directory in your terminal and running `rustup override set nightly` as described in the [rust-lang docs](https://rust-lang.github.io/rustup/overrides.html#directory-overrides)
+- Once all of the above is set up and you've got a nightly installation of Rust ready to roll, `cargo run` to start up the local server!
+
 ## Evaluation Criteria & Notes
 
 ### Primary Evaluation Criteria
 
-- [x] Code should be hosted on GitHub
-- [x] TODO application retains original functionality
-- [x] TODO application contains 1 new feature
-- [x] Include directions for installing and running your application
+- [x] [Code should be hosted on GitHub]((#hosted-on-github))
+- [x] [TODO application retains original functionality]((#retain-original-functionality))
+- [x] [TODO application contains 1 new feature](#new-feature--explanation)
 - [x] A README with the following elements
-  - [x] Link to project template used
-  - [x] Explanation of the chosen feature that was implemented
-  - [x] Any highlights that make the project uniquely yours
-  - [x] Possible areas of improvement
+  - [x] [Link to project template used](#link-to-project-template)
+  - [x] [Explanation of the chosen feature that was implemented](#new-feature--explanation)
+  - [x] [Any highlights that make the project uniquely yours](#highlights-that-make-this-project-uniquely-mine)
+  - [x] [Possible areas of improvement](#areas-of-improvement)
 - [x] Use any publicly available packages that you need
-- [ ] Include directions for installing and running your application
+- [x] [Include directions for installing and running your application](#how-to-install--run)
 - [x] Have fun! Consider modifications that highlight your development approach
 
 ### Hosted on GitHub
