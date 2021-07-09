@@ -68,7 +68,7 @@ The original functionality is completely maintained, even after updating depende
 
 ### Highlights that make this project uniquely *mine*
 
-- Though I have been using Rust the past month or so, I've never used Rocket before other than dabbling in a couple of tutorials. (Note: Rocket is the framework with which this app is built). Further, I certainly haven't used several of the dependencies used specifically in this application, including: `rocket`, `diesel`, `r2d2`.
+- Though I have been using [Rust](https://www.rust-lang.org/) the past month or so, I've never used [Rocket](https://rocket.rs/) before other than dabbling in a couple of tutorials. (Note: [Rocket](https://rocket.rs/) is the framework with which this app is built). Further, I certainly haven't used several of the dependencies used specifically in this application, including: `rocket`, `diesel`, `r2d2`.
 
   I chose to use Rocket for this challenge b/c I've been wanting to use it and figured it may demonstrate to TMF that ya boy is very comfortable using brand new frameworks :wink:.
 
