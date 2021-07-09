@@ -34,12 +34,17 @@ pub struct TodoUpdate {
     pub order: Option<i32>,
 }
 
+/// A `Result` type-alias for `TodoList` methods.
+/// This results in more succinct return types for all methods under
+/// `todo_list::TodoList` and `api::TodoList` that return a `Result` variant
+pub type Result<T, E = Error> = std::result::Result<T, E>;
+
 impl TodoList {
     pub fn new(pool: Pool) -> TodoList {
         TodoList { pool }
     }
 
-    pub fn all(&self) -> Result<Vec<Todo>, Error> {
+    pub fn all(&self) -> Result<Vec<Todo>> {
         use db::schema::todos::dsl::*;
         todos
             .limit(100)
@@ -47,7 +52,7 @@ impl TodoList {
             .map_err(From::from)
     }
 
-    pub fn create_todo(&self, request: &TodoCreate) -> Result<Todo, Error> {
+    pub fn create_todo(&self, request: &TodoCreate) -> Result<Todo> {
         diesel::insert(request)
             .into(todos::table)
             .get_result(&*self.pool.get()?)
@@ -66,7 +71,7 @@ impl TodoList {
     /// // this call would simply contain the Todo titled "todo_001"
     /// let contains_001 = todo_list.search_todo("001").unwrap();
     /// ```
-    pub fn search_todo(&self, search: &str) -> Result<Vec<Todo>, Error> {
+    pub fn search_todo(&self, search: &str) -> Result<Vec<Todo>> {
         use db::schema::todos::dsl::*;
         todos
             .filter(title.ilike(format!("%{}%", search)))
@@ -74,7 +79,7 @@ impl TodoList {
             .map_err(From::from)
     }
 
-    pub fn get_todo(&self, todo_id: i32) -> Result<Todo, Error> {
+    pub fn get_todo(&self, todo_id: i32) -> Result<Todo> {
         use db::schema::todos::dsl::*;
         todos
             .find(todo_id)
@@ -82,7 +87,7 @@ impl TodoList {
             .map_err(From::from)
     }
 
-    pub fn update_todo(&self, todo_id: i32, todo_update: TodoUpdate) -> Result<Todo, Error> {
+    pub fn update_todo(&self, todo_id: i32, todo_update: TodoUpdate) -> Result<Todo> {
         use db::schema::todos::dsl::*;
         diesel::update(todos.find(todo_id))
             .set(&todo_update)
@@ -90,7 +95,7 @@ impl TodoList {
             .map_err(From::from)
     }
 
-    pub fn delete_todo(&self, todo_id: i32) -> Result<(), Error> {
+    pub fn delete_todo(&self, todo_id: i32) -> Result<()> {
         use db::schema::todos::dsl::*;
         diesel::delete(todos.find(todo_id))
             .execute(&*self.pool.get()?)
@@ -98,7 +103,7 @@ impl TodoList {
             .map_err(From::from)
     }
 
-    pub fn clear(&self) -> Result<(), Error> {
+    pub fn clear(&self) -> Result<()> {
         use db::schema::todos::dsl::*;
         diesel::delete(todos)
             .execute(&*self.pool.get()?)

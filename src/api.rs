@@ -1,7 +1,7 @@
 use db::pool::Pool;
 use rocket::request::{FromRequest, Outcome};
 use rocket::{Request, State};
-use todo_list::{self, Error, TodoCreate, TodoUpdate};
+use todo_list::{self, Error, Result, TodoCreate, TodoUpdate};
 
 #[derive(Serialize)]
 pub struct Todo {
@@ -28,11 +28,11 @@ impl TodoList {
         self.adapt_list(self.todo_list.all())
     }
 
-    pub fn create_todo(&self, request: &TodoCreate) -> Result<Todo, Error> {
+    pub fn create_todo(&self, request: &TodoCreate) -> Result<Todo> {
         self.adapt_single(self.todo_list.create_todo(request))
     }
 
-    pub fn get_todo(&self, todo_id: i32) -> Result<Todo, Error> {
+    pub fn get_todo(&self, todo_id: i32) -> Result<Todo> {
         self.adapt_single(self.todo_list.get_todo(todo_id))
     }
 
@@ -48,15 +48,15 @@ impl TodoList {
     /// // this call would simply contain the Todo titled "todo_001"
     /// let contains_001 = todo_list.search_todo("001").unwrap();
     /// ```
-    pub fn search_todo(&self, search_term: &str) -> Result<Vec<Todo>, Error> {
+    pub fn search_todo(&self, search_term: &str) -> Result<Vec<Todo>> {
         self.adapt_list(self.todo_list.search_todo(search_term))
     }
 
-    pub fn update_todo(&self, todo_id: i32, todo_update: TodoUpdate) -> Result<Todo, Error> {
+    pub fn update_todo(&self, todo_id: i32, todo_update: TodoUpdate) -> Result<Todo> {
         self.adapt_single(self.todo_list.update_todo(todo_id, todo_update))
     }
 
-    pub fn delete_todo(&self, todo_id: i32) -> Result<(), Error> {
+    pub fn delete_todo(&self, todo_id: i32) -> Result<()> {
         self.todo_list.delete_todo(todo_id)
     }
 
@@ -74,13 +74,13 @@ impl TodoList {
         }
     }
 
-    /// Convert a `Result<Vec<todo_list::Todo>, Error>` to a `Result<Vec<api::Todo>, Error>`
-    fn adapt_list(&self, result: Result<Vec<todo_list::Todo>, Error>) -> Result<Vec<Todo>, Error> {
+    /// Convert a `todo_list::Result<Vec<todo_list::Todo>>` to a `todo_list::Result<Vec<api::Todo>>`
+    fn adapt_list(&self, result: Result<Vec<todo_list::Todo>, Error>) -> Result<Vec<Todo>> {
         result.map(|todos| todos.iter().map(|todo| self.adapt(&todo)).collect())
     }
 
-    /// Convert a `Result<todo_list::Todo, Error>` to a `Result<api::Todo, Error>`
-    fn adapt_single(&self, result: Result<todo_list::Todo, Error>) -> Result<Todo, Error> {
+    /// Convert a `todo_list::Result<todo_list::Todo>` to a `todo_list::Result<api::Todo>`
+    fn adapt_single(&self, result: Result<todo_list::Todo, Error>) -> Result<Todo> {
         result.map(|todo| self.adapt(&todo))
     }
 }
