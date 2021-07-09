@@ -78,7 +78,7 @@ The original functionality is completely maintained, even after updating depende
 
   Now, Rust is a relatively newer language and thus the language itself (and all of its frameworks) change fast and drastically. Three years in Java Spring, for instance, is rather different than three years in Rust Rocket.
 
-  When I initially cloned this project, `cargo build` literally failed to compile the package. What this means is that the codebase from three years ago that once compiled and worked no longer did. `rustc` (the Rust compiler) literally rejected the code in the package.
+  When I initially [cloned this project from the template](https://gitlab.com/duelinmarkers/todo-backend-rocket-rust/-/tree/master/), `cargo build` literally failed to compile the package. What this means is that the codebase from three years ago that once compiled and worked no longer did. `rustc` (the Rust compiler) literally rejected the code in the package. *(Bonus points to Motley Fool if whomever is grading this can clone from [the template](https://gitlab.com/duelinmarkers/todo-backend-rocket-rust/-/tree/master/) and get it working without looking at my changes :wink:)*
 
   So The first thing I did was update all `rocket` dependencies in the package to the newest stable version. This is not a magic fix, so I also updated several other pieces in the code to get this package in a buildable and runnable state.
 
