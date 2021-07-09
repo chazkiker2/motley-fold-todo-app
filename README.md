@@ -122,10 +122,12 @@ Below you will find guidelines for a small TODO application. Our hope is that yo
 
 Here are a few starter ideas for new features. You may also choose to modify or extend these; or choose something entirely different. The world is your oyster!
 
-- [ ] Create tags for todo items and ability to view all items by tag name
 - [x] Search todos
 - [ ] Implement assignee for todo, maybe prioritization too. Listing all todos can sort by assignee/priority
-- [ ] Implement “done” feature, whereby if a todo is done it gets shown in a “done” list
+  - [x] prioritization (order)
+  - [ ] assignees
+- [x] Implement “done” feature, whereby if a todo is done it gets shown in a “done” list
+- [ ] Create tags for todo items and ability to view all items by tag name
 
 ## Original README
 
