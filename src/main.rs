@@ -23,7 +23,7 @@ mod todo_list;
 
 use api::{Todo, TodoList};
 use rocket_contrib::json::Json;
-use todo_list::{Error, TodoCreate, TodoUpdate};
+use todo_list::{Result, TodoCreate, TodoUpdate};
 
 fn main() {
     let rocket = rocket::ignite();
@@ -54,19 +54,19 @@ fn main() {
 }
 
 #[get("/")]
-fn index(todo_list: &TodoList) -> Result<Json<Vec<Todo>>, Error> {
+fn index(todo_list: &TodoList) -> Result<Json<Vec<Todo>>> {
     todo_list.all().map(|todos| Json(todos))
 }
 
 #[post("/", data = "<todo_json>")]
-fn create_todo(todo_json: Json<TodoCreate>, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
+fn create_todo(todo_json: Json<TodoCreate>, todo_list: &TodoList) -> Result<Json<Todo>> {
     todo_list
         .create_todo(&todo_json.into_inner())
         .map(|todo| Json(todo))
 }
 
 #[get("/<todo_id>")]
-fn get_todo(todo_id: i32, todo_list: &TodoList) -> Result<Json<Todo>, Error> {
+fn get_todo(todo_id: i32, todo_list: &TodoList) -> Result<Json<Todo>> {
     todo_list.get_todo(todo_id).map(|todo| Json(todo))
 }
 
@@ -75,7 +75,7 @@ fn update_todo(
     todo_id: i32,
     todo_update: Json<TodoUpdate>,
     todo_list: &TodoList,
-) -> Result<Json<Todo>, Error> {
+) -> Result<Json<Todo>> {
     todo_list
         .update_todo(todo_id, todo_update.into_inner())
         .map(|todo| Json(todo))
@@ -134,16 +134,16 @@ fn update_todo(
 /// ]
 /// ```
 #[get("/search/<search>")]
-fn search_todo(search: String, todo_list: &TodoList) -> Result<Json<Vec<Todo>>, Error> {
+fn search_todo(search: String, todo_list: &TodoList) -> Result<Json<Vec<Todo>>> {
     todo_list.search_todo(&search).map(|todos| Json(todos))
 }
 
 #[delete("/<todo_id>")]
-fn delete_todo(todo_id: i32, todo_list: &TodoList) -> Result<(), Error> {
+fn delete_todo(todo_id: i32, todo_list: &TodoList) -> Result<()> {
     todo_list.delete_todo(todo_id)
 }
 
 #[delete("/")]
-fn delete_all(todo_list: &TodoList) -> Result<Json<Vec<Todo>>, Error> {
+fn delete_all(todo_list: &TodoList) -> Result<Json<Vec<Todo>>> {
     todo_list.clear().map(|_| Json(vec![]))
 }

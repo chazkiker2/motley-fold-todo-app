@@ -1,7 +1,7 @@
 use db::pool::Pool;
 use rocket::request::{FromRequest, Outcome};
 use rocket::{Request, State};
-use todo_list::{self, Error, Result, TodoCreate, TodoUpdate};
+use todo_list::{self, Result, TodoCreate, TodoUpdate};
 
 #[derive(Serialize)]
 pub struct Todo {
@@ -24,7 +24,7 @@ impl TodoList {
         }
     }
 
-    pub fn all(&self) -> Result<Vec<Todo>, Error> {
+    pub fn all(&self) -> Result<Vec<Todo>> {
         self.adapt_list(self.todo_list.all())
     }
 
@@ -60,7 +60,7 @@ impl TodoList {
         self.todo_list.delete_todo(todo_id)
     }
 
-    pub fn clear(&self) -> Result<(), Error> {
+    pub fn clear(&self) -> Result<()> {
         self.todo_list.clear()
     }
 
@@ -75,12 +75,12 @@ impl TodoList {
     }
 
     /// Convert a `todo_list::Result<Vec<todo_list::Todo>>` to a `todo_list::Result<Vec<api::Todo>>`
-    fn adapt_list(&self, result: Result<Vec<todo_list::Todo>, Error>) -> Result<Vec<Todo>> {
+    fn adapt_list(&self, result: Result<Vec<todo_list::Todo>>) -> Result<Vec<Todo>> {
         result.map(|todos| todos.iter().map(|todo| self.adapt(&todo)).collect())
     }
 
     /// Convert a `todo_list::Result<todo_list::Todo>` to a `todo_list::Result<api::Todo>`
-    fn adapt_single(&self, result: Result<todo_list::Todo, Error>) -> Result<Todo> {
+    fn adapt_single(&self, result: Result<todo_list::Todo>) -> Result<Todo> {
         result.map(|todo| self.adapt(&todo))
     }
 }
