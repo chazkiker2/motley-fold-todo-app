@@ -92,11 +92,19 @@ The original functionality is completely maintained, even after updating depende
 
 I see several areas of improvement in this codebase.
 
-1. Though `rustc` REQUIRED an update to the latest rocket dependencies, the `diesel` and `r2d2` dependencies were permitted to stay the same. There are newer versions of each of these, and to keep the code up to best practices I'd personally want to see these packages at the latest version.
+1. Dependencies
+   - Though `rustc` REQUIRED an update to the latest rocket dependencies, the `diesel` and `r2d2` dependencies were permitted to stay the same. There are newer versions of each of these, and to keep the code up to best practices I'd personally want to see these packages at the latest version.
+   - On the `diesel` dependency front: not only are there new versions, but the newest version has changed quite a bit in the past three years. I would want to refactor the use of diesel in this application quite a lot.
+   - Additionally, many of the dependencies specified in `Cargo.toml` are not necessary to depend upon directly as `rocket` re-exports most of them.
+     - `rocket_codegen` is not necessary to depend upon directly, this is a utility crate which `rocket` depends on
+     - `serde` is re-exported from `rocket::serde` so we should not depend upon this package directly. All that's necessary is tossing on this attribute: `#[serde(crate = "rocket::serde")]` on any struct that derives `Serialize` or `Deserialize`
+     - `serde_json` is essentially never necessary to depend upon outright
+     - `serde_derive` is not necessary to depend upon directly, `serde = {version = "1.0" features=["derive"]}` would achieve the same thing
+     - `r2d2` is re-exported from `rocket::r2d2` and so we should not depend upon this package directly.
 2. Rust has improved as a language throughout the past three years with lots of different updates and features. Further, Rust has especially established and homed in on its style and elegance in the past three years. The code found in this codebase is not the idiomatic Rust that most Rustaceans have come to know and love. Lots of repeated code, logic, and unnecessary bulk. I'd be motivated by a hefty refactor that implemented more idiomatic code.
 3. There's a LOT of other features that could be added to a Todo App (no wonder TMF picked this as a challenge) and I'd be motivated to add several other features.
 4. Documentation is nowhere to be found (except for the functions I added in). I'd most certainly document every endpoint as well as add doc-comments to every function with examples at least in every public function to align with Rust norms.
-5. On the `diesel` dependency front: not only are there new versions, but the newest version has changed quite a bit in the past three years. I would want to refactor the use of diesel in this application quite a lot.
+5. Testing would be a good addition to any codebase. Rust makes testing a breeze, too.
 
 ## Project Prompt
 
