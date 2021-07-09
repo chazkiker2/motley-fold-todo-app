@@ -17,11 +17,13 @@
   - [New Feature Ideas](#new-feature-ideas)
 - [Original README](#original-readme)
 
+[Rust]: https://www.rust-lang.org/
+[Rocket]: https://rocket.rs/
 
 ## How to Install & Run
 
 - clone this repository (or fork and clone, if you'd rather)
-- this app is built in Rust and Rocket and makes use of features in the nightly channel, which means you'll need a recent release of Rust nightly in order to run this Rocket application.
+- this app is built in [Rust] and [Rocket] and makes use of features in the nightly channel, which means you'll need a recent release of Rust nightly in order to run this Rocket application.
   1. to install the latest version of Rust, I recommend using `rustup`. Install `rustup` by following the instructions on [its website](https://rustup.rs/).
   2. Once `rustup` is installed, ensure the latest toolchain is installed by running the command `rustup default stable`.
   3. Now, since this application uses Nightly, you can either...
@@ -68,7 +70,7 @@ The original functionality is completely maintained, even after updating depende
 
 ### Highlights that make this project uniquely *mine*
 
-- Though I have been using [Rust](https://www.rust-lang.org/) the past month or so, I've never used [Rocket](https://rocket.rs/) before other than dabbling in a couple of tutorials. (Note: [Rocket](https://rocket.rs/) is the framework with which this app is built). Further, I certainly haven't used several of the dependencies used specifically in this application, including: `rocket`, `diesel`, `r2d2`.
+- Though I have been using [Rust] the past month or so, I've never used [Rocket] before other than dabbling in a couple of tutorials. (Note: [Rocket] is the framework with which this app is built). Further, I certainly haven't used several of the dependencies used specifically in this application, including: `rocket`, `diesel`, `r2d2`.
 
   I chose to use Rocket for this challenge b/c I've been wanting to use it and figured it may demonstrate to TMF that ya boy is very comfortable using brand new frameworks :wink:.
 
