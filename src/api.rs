@@ -19,7 +19,7 @@ pub struct TodoList {
 impl TodoList {
     pub fn new(base_url: String, pool: Pool) -> TodoList {
         TodoList {
-            base_url: base_url,
+            base_url,
             todo_list: todo_list::TodoList::new(pool),
         }
     }

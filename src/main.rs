@@ -26,6 +26,10 @@ use rocket_contrib::json::Json;
 use todo_list::{Result, TodoCreate, TodoUpdate};
 
 fn main() {
+    rocket().launch();
+}
+
+fn rocket() -> rocket::Rocket {
     let rocket = rocket::ignite();
     let base_url = rocket
         .config()
@@ -50,7 +54,6 @@ fn main() {
                 .expect("Failed to create rocket_cors::Cors"),
         )
         .manage(TodoList::new(base_url, db::pool::init()))
-        .launch();
 }
 
 #[get("/")]
